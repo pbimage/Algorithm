@@ -8,7 +8,7 @@ using namespace cv;
 
 int main()
 {
-	string src_name = "test1.bmp";
+	string src_name = "1.jpg";
 	string dst_name = "";
 	Mat src_img = imread(src_name, 0);
 	Mat dst_img;
@@ -20,17 +20,15 @@ int main()
 
 	double thld = 0.0f;
 	//GetBinaryThreshold(src_img, thld);
-	AdaptiveBinaryByNeighbor(src_img, dst_img, 255, 65, 15);
+	//AdaptiveBinaryByNeighbor(src_img, dst_img, 255, 65, 15);
 
-	imwrite("1_1.jpg", dst_img);
 	LARGE_INTEGER freq, start, end;
 	QueryPerformanceFrequency(&freq);
 	QueryPerformanceCounter(&start);
-	
+
 	//AdaptiveBinary(src_img, dst_img);
 	//FilterDenoise(dst_img, dst_img, BLUR, 5);
-	FilterDenoiseEx(dst_img, dst_img, 100);
-
+	//FilterDenoiseEx(dst_img, dst_img, 100);
 	QueryPerformanceCounter(&end);
 	cout << "time: " << (end.QuadPart - start.QuadPart) * 1000000 / freq.QuadPart << ".ns" << endl;
 

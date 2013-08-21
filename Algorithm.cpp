@@ -18,9 +18,9 @@ static const char THIS_FILE [] = __FILE__;
 #endif
 
 /* calculate the threshold of binary by otsu algorithm
- * @param _image: input image
- * @param threshold: 
- */
+* @param _image: input image
+* @param threshold: 
+*/
 void GetBinaryThreshold(cv::Mat &_image, double &threshold)
 {
 	if (_image.empty())
@@ -42,9 +42,9 @@ void GetBinaryThreshold(cv::Mat &_image, double &threshold)
 	return;
 }
 /* Adaptive binary image by otsu
- * @param _srcImg: input 1-channel image
- * @param _dstImg: output binary image
- **/
+* @param _srcImg: input 1-channel image
+* @param _dstImg: output binary image
+**/
 void AdaptiveBinary(cv::Mat &_srcImg, cv::Mat &_dstImg)
 {
 	if (_srcImg.empty() || _srcImg.channels() != 1)
@@ -81,14 +81,14 @@ void AdaptiveBinary(cv::Mat &_srcImg, cv::Mat &_dstImg)
 }
 
 /* binary image by local algorithm
- * @param _srcImg: input 8-bit image
- * @param _dstImg: output image, same channel and type of _srcImg
- * @param maxValue: used by CV_THRESHOLD_BINARY & CV_THRESHOLD_BINARY_INV
- * @param blocksize: neighbor block size(3*3  5*5 7*7 e.g...), the default value is 3*3
- * @param C: value be minus. e.g: for the mean algorithm, first calculate the mean value
- *			 of a neighbor (3*3), and then minus C, the result will be the threshold, so, 
- *			 C maybe zero or a nagative value. The default value is 5.
- **/
+* @param _srcImg: input 8-bit image
+* @param _dstImg: output image, same channel and type of _srcImg
+* @param maxValue: used by CV_THRESHOLD_BINARY & CV_THRESHOLD_BINARY_INV
+* @param blocksize: neighbor block size(3*3  5*5 7*7 e.g...), the default value is 3*3
+* @param C: value be minus. e.g: for the mean algorithm, first calculate the mean value
+*			 of a neighbor (3*3), and then minus C, the result will be the threshold, so, 
+*			 C maybe zero or a nagative value. The default value is 5.
+**/
 void AdaptiveBinaryByNeighbor(cv::Mat &_srcImg, cv::Mat &_dstImg, double maxValue, int blocksize, int C)
 {
 	if (_srcImg.empty() || 1 != _srcImg.channels())
@@ -98,6 +98,153 @@ void AdaptiveBinaryByNeighbor(cv::Mat &_srcImg, cv::Mat &_dstImg, double maxValu
 		return;
 	}
 	cv::adaptiveThreshold(_srcImg, _dstImg, maxValue, CV_ADAPTIVE_THRESH_MEAN_C, CV_THRESH_BINARY, blocksize, C);
+	return;
+}
+/* Local adaptive binary algorithm--niblack.
+ * @param _srcImg: 
+ * @param _dstImg:
+ * @param blocksize: size of neighbor block
+ * @param k: when object is light, k is [0, 1);  default: k = 0.2
+ *			 when object is black, k is (-1, 0]; default: k = -0.2
+ */
+void AdaptiveBinaryByNiblack(cv::Mat &_srcImg, cv::Mat &_dstImg, const int blocksize, const float k)
+{
+	if (_srcImg.empty())
+	{
+		DEBUG_PRINT("_srcImg invalid!\n");
+		_dstImg = _srcImg;
+		return;
+	}
+	if (_srcImg.channels() != 1)
+	{
+		DEBUG_PRINT("_srcImg.channels is not 1, Do not support!");
+		return;
+	}
+	// sum: 32f or 64f;
+	// sqsum: 64f;
+	Mat sum, sqsum;
+
+	integral(_srcImg, sum, sqsum); // 2ms
+
+	int niblack_thld = 0;
+	double mean = 0.0f, stdVar = 0.0f;
+	_dstImg = Mat::zeros(_srcImg.size(), _srcImg.type());
+	Rect block = Rect(0, 0, 0, 0);
+	int left_x, right_x, top_y, bottom_y;
+	int block_w, block_h;
+	
+	for (int r = 0; r < _srcImg.rows; r++)
+	{
+		uchar* ptr = _srcImg.ptr<uchar>(r);
+		uchar* dPtr = _dstImg.ptr<uchar>(r);
+		for (int c = 0; c < _srcImg.cols; c++)
+		{
+			left_x = c - blocksize / 2;
+			right_x = left_x + blocksize;
+			top_y = r - blocksize / 2;
+			bottom_y = top_y + blocksize;
+			if (left_x < 0)
+			{
+				left_x = 0;
+			}
+			if (right_x > _srcImg.cols)
+			{
+				right_x = _srcImg.cols;
+			}
+			if (top_y < 0)
+			{
+				top_y = 0;
+			}
+			if (bottom_y > _srcImg.rows)
+			{
+				bottom_y = _srcImg.rows;
+			}
+			block_w = right_x - left_x;
+			block_h = bottom_y - top_y;
+			block = Rect(left_x, top_y, block_w, block_h);
+			CalcVarianceAndSD(block, sum, sqsum, mean, stdVar);
+			niblack_thld = cvRound( mean + k * stdVar );
+			if (ptr[c] > niblack_thld)
+			{
+				dPtr[c] = 255;
+			}
+		}
+	}
+	return;
+}
+void AdaptiveBinaryByNiblackEx(cv::Mat &_srcImg, cv::Mat &_dstImg, const int blocksize, const float k)
+{
+	int height = _srcImg.rows;
+	int width = _srcImg.cols;
+	_dstImg = Mat::zeros(_srcImg.rows, _srcImg.cols, _srcImg.type());
+	for (int i = 0; i < height; i = i + blocksize)
+	{
+		for (int j = 0; j < width; j = j + blocksize)
+		{
+
+			int m = i + blocksize;
+			if (m >= height)
+				m = height - 1;
+
+			int n = j + blocksize;
+			if (n >= width)
+				n = width - 1;
+
+			double meanVal = 0;
+			double stdVal = 0;
+			int p = 0;
+
+			for (int k = i; k < m; k++)
+			{
+				for (int l = j; l < n; l++)
+				{
+					meanVal = meanVal + _srcImg.at<uchar>(k, l);//image.getPixel(k, l);
+					p++;
+				}
+			}
+			meanVal = meanVal/p;
+
+			for (int k = i; k < m; k++)
+			{
+				for (int l = j; l < n; l++)
+				{
+					stdVal = stdVal + pow(_srcImg.at<uchar>(k, l) - meanVal, 2.0);//Math.pow(image.getPixel(k, l) - meanVal, 2.0);
+				}
+			}
+			stdVal = sqrt(stdVal / p);//Math.sqrt(stdVal/p);
+			double threshold = 0.0f;
+			threshold = (meanVal + k * stdVal);
+			for (int k = i; k < m; k++)
+			{
+				for (int l = j; l < n; l++)
+				{
+					if (_srcImg.at<uchar>(k, l) > threshold)
+					{
+						_dstImg.at<uchar>(k, l) = 255;
+					}
+// 					if (image.getPixel(k, l) <= threshold)
+// 						image.setBinaryPixel(k, l, (short) 0);
+// 					else
+// 						image.setBinaryPixel(k, l, (short) 255);
+				}
+			}
+		}
+	}
+}
+inline void CalcVarianceAndSD(cv::Rect &block, cv::Mat &sum, cv::Mat &sqsum, double &mean, double &stdvar)
+{	
+	double brs = sum.at<int>(block.y+block.height,block.x+block.width);			// D
+	double bls = sum.at<int>(block.y+block.height,block.x);						// C
+	double trs = sum.at<int>(block.y,block.x+block.width);						// B
+	double tls = sum.at<int>(block.y,block.x);									// A
+	double brsq = sqsum.at<double>(block.y+block.height,block.x+block.width);	// D
+	double blsq = sqsum.at<double>(block.y+block.height,block.x);				// C
+	double trsq = sqsum.at<double>(block.y,block.x+block.width);				// B
+	double tlsq = sqsum.at<double>(block.y,block.x);							// A
+	mean = (brs + tls-trs-bls)/((double)block.area() + 1);				// D + A - B - C
+	double sqmean = (brsq+tlsq-trsq-blsq)/((double)block.area() + 1);	// D + A - B - C
+	stdvar = sqrt(sqmean - mean * mean);
+
 	return;
 }
 void FilterDenoise(cv::Mat &_srcImg, cv::Mat &_dstImg, int FLAG, int blocksize)
@@ -140,21 +287,18 @@ void FilterDenoiseEx(cv::Mat &_srcImg, cv::Mat &_dstImg, int thld)
 		return;
 	}
 	Mat reversImg;
-	reversImg = _srcImg.clone();
-	//bitwise_not(_srcImg, reversImg);
+	//reversImg = _srcImg.clone();
+	bitwise_not(_srcImg, reversImg);
 	vector<vector<Point>> contours;
 	ExtractContours(reversImg, contours);
 	if (!contours.empty())
 	{
 		for (int i = 0; i < contours.size(); i++)
 		{
-			if (contours[i].size() > 0 && contours[i].size() < ( _srcImg.cols * _srcImg.rows))
+			double perimter = arcLength(contours[i], true);
+			if (perimter > 300 && perimter < (_srcImg.cols + _srcImg.rows))
 			{
-				double perimter = arcLength(contours[i], true);
-				if (perimter > 50 && perimter < (_srcImg.cols + _srcImg.rows))
-				{
-					drawContours(_srcImg, contours, i, Scalar(255, 0, 0), 2);
-				}
+				drawContours(_srcImg, contours, i, Scalar(255, 0, 0), 2);
 			}
 		}
 	}

@@ -17,6 +17,10 @@ void GetBinaryThreshold(cv::Mat &_image, double &threshold);
 // 自适应二值化
 void AdaptiveBinary(cv::Mat &_srcImg, cv::Mat &_dstImg);
 void AdaptiveBinaryByNeighbor(cv::Mat &_srcImg, cv::Mat &_dstImg, double maxValue, int blocksize = 3, int C = 5);
+// niblack
+void AdaptiveBinaryByNiblack(cv::Mat &_srcImg, cv::Mat &_dstImg, const int blocksize = 3, const float k = 0.2);
+void AdaptiveBinaryByNiblackEx(cv::Mat &_srcImg, cv::Mat &_dstImg, const int blocksize, const float k = 0.2);
+inline void CalcVarianceAndSD(cv::Rect &block, cv::Mat &sum, cv::Mat &sqsum, double &mean, double &stdvar);
 
 // 滤波
 void FilterDenoise(cv::Mat &_srcImg, cv::Mat &_dstImg, int FLAG, int blocksize = 5);
