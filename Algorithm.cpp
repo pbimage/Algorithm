@@ -106,6 +106,7 @@ void AdaptiveBinaryByNeighbor(cv::Mat &_srcImg, cv::Mat &_dstImg, double maxValu
  * @param blocksize: size of neighbor block
  * @param k: when object is light, k is [0, 1);  default: k = 0.2
  *			 when object is black, k is (-1, 0]; default: k = -0.2
+ * < T = mean + k * stdVar >
  */
 void AdaptiveBinaryByNiblack(cv::Mat &_srcImg, cv::Mat &_dstImg, const int blocksize, const float k)
 {
