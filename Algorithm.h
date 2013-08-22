@@ -9,6 +9,13 @@
 #define ADAPTIVE_THRESHOLD_MEAN			CV_ADAPTIVE_THRESH_MEAN_C		// 0
 #define ADAPTIVE_THRESHOLD_GAUSSIAN		CV_ADAPTIVE_THRESH_GAUSSIAN_C	// 1
 
+// Linear Filters mask
+/*
+ *  a    -b    c
+ * -b    x    -d
+ *  c    d    -a
+ */
+
 #define BLUR		10	// blurÂË²¨
 #define BILATERAL	11	// Ë«±ßÂË²¨
 #define GAUSSIAN	12	// ¸ßË¹ÂË²¨
