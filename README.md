@@ -11,4 +11,4 @@ so, I'd like to share my little algorithm to you.
 
 If you have some problem or any suggest, email me: cimage1987@aliyun.com
 
-a bird from China.
+a bird from China <22/08/2013>
