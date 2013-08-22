@@ -9,16 +9,23 @@
 #define ADAPTIVE_THRESHOLD_MEAN			CV_ADAPTIVE_THRESH_MEAN_C		// 0
 #define ADAPTIVE_THRESHOLD_GAUSSIAN		CV_ADAPTIVE_THRESH_GAUSSIAN_C	// 1
 
+/************************************************************************/
+/*                     Linear and Nonlinear Filters					    */
+/************************************************************************/
 // Linear Filters mask
 /*
- *  a    -b    c
- * -b    x    -d
- *  c    d    -a
+ *  a     b     c
+ * -b     x     d
+ * -c    -d    -a
  */
 
 #define BLUR		10	// blur滤波
 #define BILATERAL	11	// 双边滤波
 #define GAUSSIAN	12	// 高斯滤波
+
+#define BROADEN_ZERO	100
+#define BROADEN_EDGE	101
+#define BROADEN_MIRROR	102
 // 计算二值化阈值
 void GetBinaryThreshold(cv::Mat &_image, double &threshold);
 // 自适应二值化
@@ -34,4 +41,8 @@ void FilterDenoise(cv::Mat &_srcImg, cv::Mat &_dstImg, int FLAG, int blocksize =
 void FilterDenoiseEx(cv::Mat &_srcImg, cv::Mat &_dstImg, int thld);
 void ExtractContours(cv::Mat &img, std::vector < std::vector < cv::Point >> &contours);
 
+//======================Filter=====================
+void BroadenExtention(cv::Mat &_srcImg, cv::Mat &_dstImg, int blocksize, int FLAG);
+void GenerateKernel(cv::Mat &kernel, float* kerner_array, int kernel_size);
+void FilterImage(cv::Mat &_srcImg, cv::Mat &_dstImg, cv::Mat &kernel);
 #endif // __ALGORITHM_H__

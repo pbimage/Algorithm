@@ -101,13 +101,13 @@ void AdaptiveBinaryByNeighbor(cv::Mat &_srcImg, cv::Mat &_dstImg, double maxValu
 	return;
 }
 /* Local adaptive binary algorithm--niblack.
- * @param _srcImg: 
- * @param _dstImg:
- * @param blocksize: size of neighbor block
- * @param k: when object is light, k is [0, 1);  default: k = 0.2
- *			 when object is black, k is (-1, 0]; default: k = -0.2
- * < T = mean + k * stdVar >
- */
+* @param _srcImg: 
+* @param _dstImg:
+* @param blocksize: size of neighbor block
+* @param k: when object is light, k is [0, 1);  default: k = 0.2
+*			when object is black, k is (-1, 0]; default: k = -0.2
+* < T = mean + k * stdVar >
+*/
 void AdaptiveBinaryByNiblack(cv::Mat &_srcImg, cv::Mat &_dstImg, const int blocksize, const float k)
 {
 	if (_srcImg.empty())
@@ -133,7 +133,7 @@ void AdaptiveBinaryByNiblack(cv::Mat &_srcImg, cv::Mat &_dstImg, const int block
 	Rect block = Rect(0, 0, 0, 0);
 	int left_x, right_x, top_y, bottom_y;
 	int block_w, block_h;
-	
+
 	for (int r = 0; r < _srcImg.rows; r++)
 	{
 		uchar* ptr = _srcImg.ptr<uchar>(r);
@@ -223,10 +223,10 @@ void AdaptiveBinaryByNiblackEx(cv::Mat &_srcImg, cv::Mat &_dstImg, const int blo
 					{
 						_dstImg.at<uchar>(k, l) = 255;
 					}
-// 					if (image.getPixel(k, l) <= threshold)
-// 						image.setBinaryPixel(k, l, (short) 0);
-// 					else
-// 						image.setBinaryPixel(k, l, (short) 255);
+					// 					if (image.getPixel(k, l) <= threshold)
+					// 						image.setBinaryPixel(k, l, (short) 0);
+					// 					else
+					// 						image.setBinaryPixel(k, l, (short) 255);
 				}
 			}
 		}
@@ -317,5 +317,65 @@ void ExtractContours(cv::Mat &img, std::vector < std::vector < cv::Point >> &con
 	contours.clear();
 	// 提取轮廓的同时，img被修改
 	findContours(img, contours, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE);
+	return;
+}
+void FilterImage(cv::Mat &_srcImg, cv::Mat &_dstImg, cv::Mat &kernel)
+{
+	if (_srcImg.empty())
+	{
+		DEBUG_PRINT("img invalid!\n");
+		return;
+	}
+	if (kernel.empty())
+	{
+		DEBUG_PRINT("kernel is not exist!\n");
+		return;
+	}
+	filter2D(_srcImg, _dstImg, -1, kernel);
+	return;
+}
+void GenerateKernel(cv::Mat &kernel, float* kerner_array, int kernel_size)
+{
+	if (0 == kernel_size || 0 == kernel_size % 2)
+	{
+		DEBUG_PRINT("kernel size invalid!\n");
+		return;
+	}
+	kernel = Mat(kernel_size, kernel_size, CV_32F, kerner_array);
+	return;
+}
+/* 
+Various border types, image boundaries are denoted with '|' 
+
+* BORDER_REPLICATE:     aaaaaa|abcdefgh|hhhhhhh 
+* BORDER_REFLECT:       fedcba|abcdefgh|hgfedcb 
+* BORDER_REFLECT_101:   gfedcb|abcdefgh|gfedcba 
+* BORDER_WRAP:          cdefgh|abcdefgh|abcdefg         
+* BORDER_CONSTANT:      iiiiii|abcdefgh|iiiiiii  with some specified 'i' 
+*/  
+void BroadenExtention(cv::Mat &_srcImg, cv::Mat &_dstImg, int blocksize, int FLAG)
+{
+	if (_srcImg.empty())
+	{
+		DEBUG_PRINT("_srcImg invalid!\n");
+		_dstImg = _srcImg;
+		return;
+	}
+	int broad_width = blocksize / 2;
+	switch(FLAG)
+	{
+	case BROADEN_ZERO:
+		copyMakeBorder(_srcImg, _dstImg, broad_width, broad_width, broad_width, broad_width, BORDER_CONSTANT, Scalar(0));
+		break;
+	case BROADEN_EDGE:
+		copyMakeBorder(_srcImg, _dstImg, broad_width, broad_width, broad_width, broad_width, BORDER_REPLICATE);
+		break;
+	case BROADEN_MIRROR:
+		copyMakeBorder(_srcImg, _dstImg, broad_width, broad_width, broad_width, broad_width, BORDER_REFLECT);
+		break;
+	default:
+		DEBUG_PRINT("FLAG invalid!\n");
+		return;
+	}
 	return;
 }
