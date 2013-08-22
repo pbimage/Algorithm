@@ -1,4 +1,4 @@
-/************************************************************************/
+ï»¿/************************************************************************/
 /* pbImage 19/08/2013                                                   */
 /************************************************************************/
 #ifndef __ALGORITHM_H__
@@ -19,16 +19,16 @@
  * -c    -d    -a
  */
 
-#define BLUR		10	// blurÂË²¨
-#define BILATERAL	11	// Ë«±ßÂË²¨
-#define GAUSSIAN	12	// ¸ßË¹ÂË²¨
+#define BLUR		10	// bluræ»¤æ³¢
+#define BILATERAL	11	// åŒè¾¹æ»¤æ³¢
+#define GAUSSIAN	12	// é«˜æ–¯æ»¤æ³¢
 
 #define BROADEN_ZERO	100
 #define BROADEN_EDGE	101
 #define BROADEN_MIRROR	102
-// ¼ÆËã¶şÖµ»¯ãĞÖµ
+// è®¡ç®—äºŒå€¼åŒ–é˜ˆå€¼
 void GetBinaryThreshold(cv::Mat &_image, double &threshold);
-// ×ÔÊÊÓ¦¶şÖµ»¯
+// è‡ªé€‚åº”äºŒå€¼åŒ–
 void AdaptiveBinary(cv::Mat &_srcImg, cv::Mat &_dstImg);
 void AdaptiveBinaryByNeighbor(cv::Mat &_srcImg, cv::Mat &_dstImg, double maxValue, int blocksize = 3, int C = 5);
 // niblack
@@ -36,7 +36,7 @@ void AdaptiveBinaryByNiblack(cv::Mat &_srcImg, cv::Mat &_dstImg, const int block
 void AdaptiveBinaryByNiblackEx(cv::Mat &_srcImg, cv::Mat &_dstImg, const int blocksize, const float k = 0.2);
 inline void CalcVarianceAndSD(cv::Rect &block, cv::Mat &sum, cv::Mat &sqsum, double &mean, double &stdvar);
 
-// ÂË²¨
+// æ»¤æ³¢
 void FilterDenoise(cv::Mat &_srcImg, cv::Mat &_dstImg, int FLAG, int blocksize = 5);
 void FilterDenoiseEx(cv::Mat &_srcImg, cv::Mat &_dstImg, int thld);
 void ExtractContours(cv::Mat &img, std::vector < std::vector < cv::Point >> &contours);

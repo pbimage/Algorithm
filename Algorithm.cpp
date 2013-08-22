@@ -1,4 +1,4 @@
-/************************************************************************/
+ï»¿/************************************************************************/
 /* pbImage 19/08/2013                                                   */
 /************************************************************************/
 #include "Algorithm.h"
@@ -315,7 +315,7 @@ void ExtractContours(cv::Mat &img, std::vector < std::vector < cv::Point >> &con
 		return;
 	}
 	contours.clear();
-	// ÌáÈ¡ÂÖÀªµÄÍ¬Ê±£¬img±»ĞŞ¸Ä
+	// æå–è½®å»“çš„åŒæ—¶ï¼Œimgè¢«ä¿®æ”¹
 	findContours(img, contours, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE);
 	return;
 }
