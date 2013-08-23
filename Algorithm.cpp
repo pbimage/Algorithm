@@ -34,7 +34,7 @@ void GetBinaryThreshold(cv::Mat &_image, double &threshold)
 	{
 		cvtColor(_image, image, CV_BGR2GRAY);
 	}
-	else if ( 1 == _image.channels())
+	else if ( 1 == _image.channels() )
 	{
 		_image.copyTo(image);
 	}
