@@ -53,6 +53,7 @@ void AdaptiveBinary(cv::Mat &_srcImg, cv::Mat &_dstImg)
 		_dstImg = Mat::zeros(_srcImg.rows, _srcImg.cols, _srcImg.type());
 		return;
 	}
+	Mat cp_srcImg = _srcImg.clone();
 #if 0
 	uchar *ptr = _srcImg.datastart;
 	uchar *ptr_end = _srcImg.dataend;
@@ -74,9 +75,9 @@ void AdaptiveBinary(cv::Mat &_srcImg, cv::Mat &_dstImg)
 	Mat nz = Mat(vector<uchar> (_srcImg.datastart, ptr_end), true);
 	double threshold = cv::threshold(nz, nz, 0, 255, CV_THRESH_BINARY | CV_THRESH_OTSU);
 #else
-	double threshold = cv::threshold(_srcImg, _srcImg, 0, 255, CV_THRESH_BINARY | CV_THRESH_OTSU);
+	double threshold = cv::threshold(cp_srcImg, cp_srcImg, 0, 255, CV_THRESH_BINARY | CV_THRESH_OTSU);
 #endif
-	cv::threshold(_srcImg, _dstImg, threshold, 255, CV_THRESH_BINARY);
+	cv::threshold(cp_srcImg, _dstImg, threshold, 255, CV_THRESH_BINARY);
 	return;
 }
 
@@ -378,4 +379,26 @@ void BroadenExtention(cv::Mat &_srcImg, cv::Mat &_dstImg, int blocksize, int FLA
 		return;
 	}
 	return;
+}
+/* Rotate a point angle-radian around the center point.
+ * x' = dcos(α+θ) = d [ cos(α)cos(θ) - sin(α)sin(θ) ]
+ * y' = dsin(α+θ) = d [ sin(α)cos(θ) + cos(α)sin(θ) ]
+ * @param point: point to be rotate
+ * @param centerPt: center point
+ * @param angle: unit--radian
+ * @return: the point after be-rotated
+ */
+cv::Point RotatePoint(cv::Point point, cv::Point centerPt, float angle)
+{
+	int x(0), y(0);
+	double dist = norm(point - centerPt);
+    float rotate_cos = cos(angle);
+	float rotate_sin = sin(angle);
+	float inter_cos = (point.x - centerPt.x) / dist;
+	float inter_sin = (point.y - centerPt.y) / dist;
+
+	x = centerPt.x + (int)dist * ( rotate_cos * inter_cos - rotate_sin * inter_sin );
+	y = centerPt.y + (int)dist * ( rotate_sin * inter_cos + rotate_cos * inter_sin );
+	
+	return Point(x, y);
 }

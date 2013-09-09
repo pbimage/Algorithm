@@ -45,4 +45,7 @@ void ExtractContours(cv::Mat &img, std::vector < std::vector < cv::Point >> &con
 void BroadenExtention(cv::Mat &_srcImg, cv::Mat &_dstImg, int blocksize, int FLAG);
 void GenerateKernel(cv::Mat &kernel, float* kerner_array, int kernel_size);
 void FilterImage(cv::Mat &_srcImg, cv::Mat &_dstImg, cv::Mat &kernel);
+
+cv::Point RotatePoint(cv::Point point, cv::Point centerPt, float angle);
+
 #endif // __ALGORITHM_H__
