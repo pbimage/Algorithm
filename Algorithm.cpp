@@ -392,13 +392,13 @@ cv::Point RotatePoint(cv::Point point, cv::Point centerPt, float angle)
 {
 	int x(0), y(0);
 	double dist = norm(point - centerPt);
-    float rotate_cos = cos(angle);
-	float rotate_sin = sin(angle);
-	float inter_cos = (point.x - centerPt.x) / dist;
-	float inter_sin = (point.y - centerPt.y) / dist;
+    float alpha_cos = cos(angle);
+	float alpha_sin = sin(angle);
+	float theta_cos = (point.x - centerPt.x) / dist;
+	float theta_sin = (point.y - centerPt.y) / dist;
 
-	x = centerPt.x + (int)dist * ( rotate_cos * inter_cos - rotate_sin * inter_sin );
-	y = centerPt.y + (int)dist * ( rotate_sin * inter_cos + rotate_cos * inter_sin );
+	x = centerPt.x + (int)dist * ( alpha_cos * theta_cos - alpha_sin * theta_sin );
+	y = centerPt.y + (int)dist * ( alpha_sin * theta_cos + alpha_cos * theta_sin );
 	
 	return Point(x, y);
 }
